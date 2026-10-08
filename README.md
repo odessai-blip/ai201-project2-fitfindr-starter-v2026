@@ -66,17 +66,17 @@
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Suggests one or two outfits that combine the listing with pieces from the user's wardrobe.
+- **Inputs:** `new_item` (dict, one listing dict from search_listings), `wardrobe` (dict with an `items` key holding a list of wardrobe item dicts, each with id, name, category, colors, style_tags, notes; notes may be None)
+- **Returns:** A non-empty str of outfit suggestions, naming specific wardrobe pieces by their `name` when the wardrobe has items.
+- **When it has nothing:** If `wardrobe["items"]` is empty, returns a non-empty str of general styling advice for the item, with no wardrobe pieces named. Never returns "" and never raises.
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Writes a short social-post-style caption about the find.
+- **Inputs:** `outfit` (str, the string returned by suggest_outfit), `new_item` (dict, the listing dict)
+- **Returns:** A str of two to four sentences that mentions the item, its price and its platform once each, and names the vibe. It leaves out the brand when brand is None.
+- **When it has nothing:** If `outfit` is empty or whitespace, returns a descriptive message str (for example "No outfit suggestion was provided, so there's nothing to write a caption about.") and does not call the model. Never raises.
 
 ---
 
@@ -95,6 +95,7 @@
 
 **Branch rule:**
 If search_listings returns an empty list, put a "no matches" message in the session and stop. Otherwise take the first result, call suggest_outfit with it and the wardrobe, then pass that string and the same listing to create_fit_card.
+
 **Where it lives:** `agent.py::run_agent`
 
 **How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
