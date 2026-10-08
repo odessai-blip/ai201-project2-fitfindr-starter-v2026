@@ -25,9 +25,7 @@ Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
 **Why this target:**
-<!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
-     "my search is a plain keyword match and some phrasings will miss" is a
-     real answer. -->
+My search is a plain keyword match, so some phrasings of a query won't overlap with any listing's title, tags, or description and will return nothing. That's a miss from the data and the matching, not a bug in the loop. The fit card also comes from a model call, which can occasionally fail or return something unusable. 5 of 5 would punish normal variation, so I set 4 of 5.
 
 ---
 
@@ -37,65 +35,48 @@ Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
 **Why this target:**
-<!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
-     about this path? -->
+This path never calls the model. If search_listings returns an empty list, my loop checks for it and stops, and that is plain code that behaves the same every time. A miss would mean the branch is broken, not that I got unlucky, so anything below 5 of 5 would be hiding a bug.
 
 ---
 
 ## 3. Something about state
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know that the item your search found is the same item the
-     next tool received? Name something countable or observable.
-
-     This is the criterion people find hardest, because state failure doesn't
-     look like state failure — it looks like a tool problem. Something that
-     compares session["selected_item"] against what actually reached
-     suggest_outfit is the shape you're after. -->
-
-
-
+3. Given a query that matches at least one listing, the id of the listing
+   returned by search_listings is the same id that suggest_outfit and
+   create_fit_card receive, in 5 of 5 tries.
+   
 **Why this target:**
-
+The listing id is passed from one tool to the next by my own code, and no model decides it. Nothing random can change it between steps. If the id differs even once, the session is passing the wrong item, which is a bug that needs fixing, so I'm not leaving room for misses.
 
 
 ---
 
 ## 4. Something about the fit card
 
-<!-- YOU WRITE THIS ONE.
-
-     The fit card calls a model, so the same input can produce different words
-     each time. That's not a bug — it's the nature of the tool. So what would
-     make it acceptable?
-
-     Think about what you'd actually be unhappy to see. A caption that never
-     mentions the price? Two different items producing the same opening
-     sentence? A card longer than a caption anyone would post? Any of those can
-     be turned into a number. -->
+4. Given a query that matches at least one listing, the fit card is 2 to 4
+   sentences and mentions the item, its price, and its platform, in 4 of 5
+   tries, even though the wording differs between runs.
+   
 
 
 
 **Why this target:**
-
+The fit card is written by a model, so the wording changes every run and it sometimes leaves out a detail such as the platform or the price, even when my code is correct. I can check what the card contains but not its exact words, so I allow one miss in five. I didn't go lower because the prompt should include all three details, and missing them often would mean my prompt is wrong.
 
 
 ---
 
 ## 5. Your choice
 
-<!-- YOU WRITE THIS ONE TOO.
 
-     Pick something you actually care about getting right. Speed, the empty
-     wardrobe path, what happens when the model can't be reached, whether the
-     search respects a price ceiling — anything, as long as it names a number
-     or an observable outcome. -->
 
+5. Given the query 'vintage graphic tee under $30', every listing returned
+   by search_listings has a price of $30 or less, in 5 of 5 tries.
+   
 
 
 **Why this target:**
-
+The price filter is a plain comparison (price <= max_price) in search_listings, and no model is involved. If a $38 listing ever shows up for 'under $30', the filter has a bug, so the target allows no misses.
 
 
 ---
