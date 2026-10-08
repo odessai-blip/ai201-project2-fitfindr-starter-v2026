@@ -121,42 +121,49 @@ $ python app.py ask '...'
 **The three tools, tested one at a time**
 
 ```
-$ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
+$ python -c "from tools import search_listings; print([(l['id'], l['price']) for l in search_listings('graphic tee', max_price=30)])"
+[('lst_017', 15.0), ('lst_002', 18.0), ('lst_033', 19.0), ('lst_006', 24.0), ('lst_012', 20.0), ('lst_015', 26.0), ('lst_011', 27.0)]
 
+$ python -c "from tools import search_listings; print(search_listings('designer ballgown', size='XXS', max_price=5))"
+[]
 ```
 
 ```
-$ python -c "from tools import suggest_outfit; ..."
+$ python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
+**Outfit 1: Casual Streetwear**
+Pair the Vintage Levi's 501 Jeans with the White ribbed tank top and the Vintage black denim jacket (slightly cropped). Finish the look with the Chunky white sneakers, the Brown leather belt, and the Black crossbody bag.
 
+**Outfit 2: Cozy & Edgy**
+Style the Vintage Levi's 501 Jeans with the Oversized grey crewneck sweatshirt and the Black combat boots. Accessorize with the Brown leather belt for added definition and the Black crossbody bag for an effortless, everyday vibe.
+
+$ python -c "from tools import suggest_outfit; from utils.data_loader import load_listings; print(suggest_outfit(load_listings()[0], {'items': []}))"
+Vintage Levi's 501s are the ultimate streetwear staple. Here are two effortless ways to style them using pieces you likely already own:
+(general advice, no wardrobe pieces named)
 ```
 
 ```
-$ python -c "from tools import create_fit_card; ..."
+$ AI201_CACHE=0 python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
+Found my holy grail medium wash Vintage Levi's 501s on Depop for just $38 and I am never taking them off. They've got that perfect, lived-in 90s slouch that you just can't manufacture. Throwing them on with crisp white sneakers for the ultimate effortless weekend vibe.
 
+$ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('   ', load_listings()[0]))"
+No outfit suggestion was provided, so there's nothing to write a caption about.
 ```
 
 ---
 
 ## How I Used AI
 
-<!-- Two specific moments. What you asked, what came back, what you changed.
-
-     "I used Claude to help me code" is not enough.
-
-     "I gave Claude my search_listings spec. It returned None on no match
-     instead of an empty list, so I changed it" is the level we want. -->
-
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* A draft of the Tool Inventory entries for my three tools, before I had looked at tools.py.
+- *What came back:* Entries built on guesses. It used `query` as the first parameter of search_listings (the real name is `description`), and it made suggest_outfit and create_fit_card return dicts when the stubs say they return strings.
+- *What I changed:* I pasted tools.py and the README, and the entries were redone to match the real signatures. I replaced my README bullets with the corrected versions and committed them.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* Code for all three tools, written against my Tool Inventory (inclusive price filter, whole-token size match, empty list on no match, general advice on an empty wardrobe).
+- *What came back:* Working code, but its predicted test result for `search_listings('jacket', size='M')` was wrong. It said only lst_004 would match. My run returned lst_032 (M/L), lst_004 (M) and lst_022 (M).
+- *What I changed:* I didn't change the code. I checked each returned listing against my own spec (all three have `m` as a whole token, and no shoes or `XL (oversized)` came back) and recorded the real output instead of the prediction. I also ran create_fit_card three times with `AI201_CACHE=0` to confirm the outputs differ, and tested the empty wardrobe and whitespace-outfit cases myself.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
