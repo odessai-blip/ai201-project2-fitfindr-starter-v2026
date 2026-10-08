@@ -41,6 +41,8 @@
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
 
+FitFindr helps a secondhand shopper find a piece and work out how to wear it. The user types a plain-language request like "vintage graphic tee under $30". The agent searches the listings, picks the best match, builds outfit ideas from the user's wardrobe, and writes a short shareable fit card. If nothing matches, it stops before the model tools and tells the user what to loosen: price, size, or keywords.
+
 
 
 ---
@@ -98,9 +100,9 @@ If search_listings returns an empty list, put a "no matches" message in the sess
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** Regex, in `agent.py::parse_query`. One pattern pulls out a $ price, another pulls out "size X", and the remaining text becomes the description.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** `query`, then `parsed`, `search_results`, `selected_item`, `outfit_suggestion`, `fit_card`. Each tool's result is stored in the session and read back out for the next call. `error` is set only when the search comes back empty.
 
 ---
 
@@ -114,7 +116,28 @@ If search_listings returns an empty list, put a "no matches" message in the sess
 **One full query**
 
 ```
-$ python app.py ask '...'
+$ python app.py ask 'vintage graphic tee under $30'
+
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   **Outfit 1: Y2K Casual Streetwear**
+Pair the Y2K Baby Tee — Butterfly Print with the **Baggy straight-leg jeans, dark wash**. Cinch the waist with the **Brown leather belt** and complete the look with the **Chunky white sneakers** and the **Black crossbody bag**.
+
+**Outfit 2: Edged-Up Retro**
+Combine the Y2K Baby Tee — Butterfly Print with the **Wide-leg khaki trousers**. Layer the **Vintage black denim jacket** on top, and step into the **Black combat boots** for a fun mix of Y2K and vintage styles.
+
+  Fit card: Found the ultimate 2000s mall-rat holy grail while doom-scrolling on depop last night. This butterfly print baby tee was only $18 and screams Bratz doll energy in the best way possible. Can’t wait to style it with baggy dark-wash denim and chunky kicks for that effortless, early-2000s streetwear vibe.
+
+0 model calls this session, 2 served from cache
+
+$ python app.py ask 'designer ballgown size XXS under $5'
+
+  No listings matched 'designer ballgown' in size XXS under $5. Try one of these: raise your price limit; try a different size or leave the size out; use fewer or simpler keywords, like 'jacket' or 'tee' instead of a long description.
+
+0 model calls this session
+
+$ python -c "from agent import run_agent; from utils.data_loader import get_example_wardrobe; s = run_agent('vintage graphic tee under \$30', get_example_wardrobe()); print(s['selected_item']['id'], s['search_results'][0]['id'])"
+lst_002 lst_002
 
 ```
 
@@ -138,7 +161,8 @@ Style the Vintage Levi's 501 Jeans with the Oversized grey crewneck sweatshirt a
 
 $ python -c "from tools import suggest_outfit; from utils.data_loader import load_listings; print(suggest_outfit(load_listings()[0], {'items': []}))"
 Vintage Levi's 501s are the ultimate streetwear staple. Here are two effortless ways to style them using pieces you likely already own:
-(general advice, no wardrobe pieces named)
+*   **The Casual Classic:** Pair the jeans with a crisp, tucked-in white t-shirt and a classic leather belt. Layer with an oversized black blazer and complete the look with retro sneakers (like Converse or Adidas Sambas) for an effortless, high-low vintage vibe.
+*   **The Cozy Weekend:** Wear them with a relaxed-fit gray crewneck sweatshirt. Add chunky loafers or your favorite flat boots, and accessorize with a simple tote bag for a comfortable, timeless look that works all year round.
 ```
 
 ```
