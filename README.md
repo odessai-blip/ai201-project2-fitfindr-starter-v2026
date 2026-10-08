@@ -59,10 +59,10 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Finds secondhand listings that match a keyword description, optionally filtered by size and price ceiling.
+- **Inputs:** `description` (str), `size` (str or None), `max_price` (float or None). `max_price` is inclusive, so "under $30" means price <= 30. A size matches only if the lowercased size is a whole token of the listing's size, where tokens are split on spaces, "/" and parentheses. So "M" matches "M" and "S/M", but not "XL (oversized)" or "US 9".
+- **Returns:** A list of listing dicts, best match first, at most config.SEARCH_RESULT_LIMIT. Each dict has id, title, description, category, style_tags (list), size, condition, price (float), colors (list), brand (str or None), platform (str). Score = number of description keywords found in title, description, style_tags, category, colors and brand. Ties go to the lower price. Zero-score listings are dropped.
+- **When it has nothing:** Returns an empty list `[]`. Never None, never an exception, never a string.
 
 ### `suggest_outfit`
 
@@ -94,7 +94,7 @@
      function have to be real. -->
 
 **Branch rule:**
-
+If search_listings returns an empty list, put a "no matches" message in the session and stop. Otherwise take the first result, call suggest_outfit with it and the wardrobe, then pass that string and the same listing to create_fit_card.
 **Where it lives:** `agent.py::run_agent`
 
 **How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
