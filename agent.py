@@ -5,7 +5,7 @@ The FitFindr planning loop.
 """
 
 import re
-
+from mcp_client import call_tool
 import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
@@ -103,11 +103,11 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     iterations += 1
     trace.check_iterations(iterations)
     parsed = session["parsed"]
-    session["search_results"] = search_listings(
-        parsed["description"],
-        size=parsed["size"],
-        max_price=parsed["max_price"],
-    )
+    session["search_results"] = call_tool("search_listings", {
+    "description": parsed["description"],
+    "size": parsed["size"],
+    "max_price": parsed["max_price"],
+    })
 
     # 3. THE BRANCH: nothing came back -> stop before suggest_outfit
     if not session["search_results"]:
