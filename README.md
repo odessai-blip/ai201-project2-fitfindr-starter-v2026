@@ -295,7 +295,7 @@ No criterion was missed, so there is no failure to diagnose in the usual sense. 
 behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
 full. -->
-
+ I moved `search_listings` onto MCP. `mcp_server.py` registers it with a description and typed inputs, and in `agent.py::run_agent` the direct call became `call_tool("search_listings", {...})`. Nothing behaved differently: a check comparing the MCP result to the direct call printed `True 10 lst_002` (same list, same order), and the empty search still arrived as `[]` and stopped the loop. The only visible change is that each call starts the server, so it is a bit slower.
 
 
 ---
