@@ -250,14 +250,19 @@ Scored this literal holy grail butterfly baby tee on Depop for just $18 and I am
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
-
+| 1 | A matching query completes all three tools | 4 of 5 | MET (5/5) | All five tries returned a fit card, but all five used the same query, so the "phrasing that matches nothing" risk in my criteria.md was never tested. |
+| 2 | An impossible query stops before the second tool | 5 of 5 | MET (5/5) | All five tries stopped with search_results: 0, an error message, and no fit card. |
+| 3 | Item id passed on matches search result | 5 of 5 | MET (5/5) | selected_item id and search_results[0] id were both lst_002 in every try. The report can't show the ids that suggest_outfit and create_fit_card actually received. |
+| 4 | Fit card is 2-4 sentences, names item, price, platform | 4 of 5 | MET (5/5) | Every card was 2-4 sentences and named $18 and Depop. I counted "mentions the item" as a natural description like "butterfly baby tee", not the exact listing title. |
+| 5 | Every result is $30 or less | 5 of 5 | MET (5/5) | The highest price returned was $26, so no result was ever over the limit. But with no price limit the top 10 were already all under $30, so this query could not have caught a broken filter. |
 **Diagnoses**
+No criterion was missed, so there is no failure to diagnose in the usual sense. I think my targets were too easy in three ways:
 
+- **Criterion 5** can't fail on this query. With no price limit, the top 10 results for "vintage graphic tee" were already all $26 or less. When I searched with max_price=15, the results dropped to [12.0, 14.0, 15.0], so the filter does work. A tighter query like "under $15" would actually test it.
+- **Criterion 4** has a loose reading and a strict one. A strict reading of "mentions the item" (the exact title "Y2K Baby Tee — Butterfly Print") would fail all five cards. I used the loose reading. This is the one I would tighten first.
+- **Criterion 1** only ran one query, so it never tested a phrasing that matches nothing, which was the risk I named in my why-line.
+
+**A gap none of the criteria measure:** "red cardigan under $25" returned a college crewneck and a flannel shirt, neither a cardigan. Place: a tool, search_listings. Mechanism: it scores by counting how many query words appear anywhere in a listing and drops only zero-score listings, so matching on "red" alone is enough. run_agent then takes search_results[0] without checking it is relevant. The agent wrote a fit card for an item the user didn't ask for, and all five criteria still passed.
 
 
 ---
