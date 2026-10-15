@@ -63,7 +63,7 @@ FitFindr helps a secondhand shopper find a piece and work out how to wear it. Th
 
 - **What it does:** Finds secondhand listings that match a keyword description, optionally filtered by size and price ceiling.
 - **Inputs:** `description` (str), `size` (str or None), `max_price` (float or None). `max_price` is inclusive, so "under $30" means price <= 30. A size matches only if the lowercased size is a whole token of the listing's size, where tokens are split on spaces, "/" and parentheses. So "M" matches "M" and "S/M", but not "XL (oversized)" or "US 9".
-- **Returns:** A list of listing dicts, best match first, at most config.SEARCH_RESULT_LIMIT. Each dict has id, title, description, category, style_tags (list), size, condition, price (float), colors (list), brand (str or None), platform (str). Score = number of description keywords found in title, description, style_tags, category, colors and brand. Ties go to the lower price. Zero-score listings are dropped.
+- **Returns:** A list of listing dicts, best match first, at most config.SEARCH_RESULT_LIMIT. Each dict has id, title, description, category, style_tags (list), size, condition, price (float), colors (list), brand (str or None), platform (str). Score = number of description keywords found in title, description, style_tags, category, colors and brand. Ties go to the lower price. A listing is kept only if it matches every description keyword (changed in Unit 4 from "at least one"); listings missing any keyword are dropped.
 - **When it has nothing:** Returns an empty list `[]`. Never None, never an exception, never a string.
 
 ### `suggest_outfit`
