@@ -282,13 +282,23 @@ No criterion was missed, so there is no failure to diagnose in the usual sense. 
 **Happy path**
 
 ```
-
+[1] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 3 items: Y2K Baby Tee — Butterfly Print, Vintage Band Tee — Faded Grey, Graphic Tee — 2003 Tour Bootleg Style
+[2] suggest_outfit
+      in:  dict with keys: new_item, wardrobe_items
+      out: **Outfit 1: Y2K Casual Streetwear** Pair the Y2K Baby Tee — Butterfly Print with the **Baggy straight-leg jean…
+[3] create_fit_card
+      in:  dict with keys: outfit, new_item
+      out: Found the ultimate 2000s mall-rat holy grail while doom-scrolling on depop last night. This butterfly print ba…
 ```
 
 **Empty search**
 
 ```
-
+[1] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
 ```
 
 **On the MCP move:** <!-- what changed in your code, and whether anything
