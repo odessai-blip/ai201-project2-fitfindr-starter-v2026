@@ -70,7 +70,7 @@ def search_listings(
         )
         words = {_stem(t) for t in _tokens(haystack)}
         score = sum(1 for k in keywords if k in words)
-        if score > 0:
+        if score == len(keywords):
             scored.append((score, listing["price"], listing))
 
     scored.sort(key=lambda s: (-s[0], s[1]))  # best score first, ties to lower price

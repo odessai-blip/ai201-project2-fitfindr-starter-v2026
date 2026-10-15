@@ -52,6 +52,12 @@ SCENARIOS = [
         "query": "vintage graphic tee under $30",
         "wardrobe": "example",
         "criterion": 5,
+    },    
+    {
+        "name": "one-word match stops early",
+        "query": "red cardigan under $25",
+        "wardrobe": "example",
+        "criterion": 2,
     },
 ]
 
