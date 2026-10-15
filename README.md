@@ -209,17 +209,23 @@ No outfit suggestion was provided, so there's nothing to write a caption about.
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Item id passed on matches search result | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card is 2-4 sentences, names item, price, platform | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Every result is $30 or less | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+
+Scoring notes: for #4, "mentions the item" counted a natural description
+(e.g. "butterfly baby tee"), not the exact listing title. For #3, the report
+only compares selected_item's id to search_results[0]'s id, so it can't show
+the ids the tools actually receive.
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
 ```
-
+Criterion 4, tools.py::create_fit_card (results/run_2026-10-14_2327_before.md, Try 1):
+Scored this literal holy grail butterfly baby tee on Depop for just $18 and I am never taking it off. Giving major early 2000s mall rat energy, especially paired with baggy dark wash denim and chunky sneakers. Going to layer it under a zip hoodie and combat boots next time for that ultimate edgy-sweet contrast.
 ```
 
 ---
