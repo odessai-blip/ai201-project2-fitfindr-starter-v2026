@@ -308,20 +308,37 @@ full. -->
      `python run_eval.py --label after` -->
 
 **What I changed:**
+One line in `tools.py::search_listings`. The filter that drops weak matches used to keep any listing that matched at least one query word (`if score > 0:`). It now keeps only listings that match every query word (`if score == len(keywords):`). Nothing else in the agent changed.
 
 **Which failure it was meant to fix:**
+In my Milestone 4 diagnosis, "red cardigan under $25" returned a college crewneck and a flannel shirt, neither a cardigan. Both matched only on "red". `run_agent` then took the first result and wrote a fit card for an item the user never asked for. None of my five criteria caught this, so I added a sixth scenario ("one-word match stops early") after the first run. Its "before" is a by-hand check, not a run_eval.py run: search_listings returned lst_027 and lst_003, and the agent wrote a fit card for lst_027.
 
 ### Run Log — After
 
+Source: results/run_2026-10-15_0018_after.md (run_eval.py, 5 tries each, cache off).
+
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Item id passed on matches search result | 5 of 5 | PASS | PASS | PASS | FAIL (503) | PASS | MISSED (4/5) |
+| 4. Fit card is 2-4 sentences, names item, price, platform | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Every result is $30 or less | 5 of 5 | PASS | PASS | PASS | FAIL (503) | PASS | MISSED (4/5) |
+
+Extra scenario, added after the first run: "red cardigan under $25" (criterion 2).
+After the change it stopped early in 5 of 5 tries. Not counted in row 2 above.
+
+Two earlier after-runs were discarded: results/run_2026-10-14_2352_after.md was missing the cardigan scenario because I hadn't saved scenarios.py, and results/run_2026-10-14_2359_after.md had two criterion 1 tries crash with a 503. The table above is from the third run.
 
 **Did it help, and how do I know:**
+It fixed the failure I targeted. "red cardigan under $25" went from returning a crewneck and a flannel (and a fit card for the crewneck) to stopping early with "No listings matched" in 5 of 5 tries.
+
+It also cost recall. "vintage graphic tee under $30" went from 10 results to 3, because a listing must now contain every query word somewhere. Listings like lst_017 (a $15 graphic tee) probably dropped out for lacking "vintage". The top result stayed lst_002.
+
+The two misses in the After table (criteria 3 and 5, try 4 each) are a Google 503 "high demand" outage on the model call, not the change. I scored them FAIL because the target has to hold and no result came back to check. The same outage crashed two tries in an earlier after-run, so it was not caused by this change, but it means the After table is not a perfectly clean comparison.
+
+The change did not make results fully relevant: "graphic tee under $30" returned a Mesh Long-Sleeve Top as the top result, because "graphic" and "tee" each appear somewhere in its fields. Requiring all words removes one-word matches but not irrelevant multi-word matches.
+
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
@@ -336,7 +353,11 @@ full. -->
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
 
-
+- **Relevance (not covered by any criterion):** keyword matching can still return an item that isn't what the user meant, like the mesh top for "graphic tee". Next I would score matches in the title or category higher than matches in the description or tags. I stopped because the unit allows one improvement.
+- **Recall:** the all-words rule drops partial matches, so "blue corduroy jacket" now returns nothing instead of a loose jacket match. A fallback that retries with fewer words and says what it dropped would address this (the stretch feature).
+- **Criteria 3 and 5 (After run):** both missed only because of a 503 outage on one try each. I would rerun when the model is calmer. The handler's message for a 503 ("try again later") is also less specific than the bad-key message.
+- **Criterion 5 test strength:** at $30 the filter has nothing to remove for this query. A limit like "under $15" would test it properly.
+- **Criterion 4:** "mentions the item" has a loose and a strict reading. Under the strict reading (exact listing title) every card fails. I would rewrite it to say which reading counts.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
